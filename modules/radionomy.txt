@@ -1,0 +1,69 @@
+------------------------
+
+ Aide Radionomy module
+
+------------------------
+
+Liste des commandes reconnues par le module :
+
+ - Pour tout le monde :
+
+!titre (ou autre, selon la configuration)
+!dedi
+
+ - Pour les animateurs
+
+!onair
+!offair
+
+ - Pour l'administrateur du module :
+
+!suffixe
+!animlist
+!annonce
+!anim
+
+-----------------------
+Commandes utilisateur
+-----------------------
+
+!titre :		   Peut être changé dans le fichier de configuration par le paramètre 'radionomyCmd'
+       	 		   Force l'affichage du titre en cours de diffusion.
+
+!dedi <dedicace>  : 	   Si un animateur est actuellement On Air, la dedicace sera redirigée dans son PV.
+
+-----------------------
+Commandes animateurs 
+-----------------------
+
+Ces commandes nécessites que les personnes soient dans la liste des animateurs (!anim add <animateur>)
+
+!onair :      		    Modifie le pseudo de la personne avec un suffixe et le définit comme animateur.
+
+!offair : 		    Retire le suffixe du pseudo de l'animateur et rend la place de l'animateur libre.
+
+--------------------------
+Commandes administrateur 
+--------------------------
+
+!suffixe <suffixe> :	    Définit le suffixe ajouté au pseudo des animateurs lorsqu'il effectuent la commande !onair (par défaut : |OnAir)
+!animlist : 	   	    Voir la liste des animateurs actuellement dans la liste.
+
+!anim <add|del> <pseudo> :  Ajouter ou supprimer un animateur de la liste. 
+      			    Pour ajouter : !anim add Pseudo
+			    Pour supprimer : !anim del Pseudo
+
+!annonce <on|off> Annonce : Définit l'annonce faite lorsqu'un animateur change son statut OnAir ou OffAir.
+	 	  	    Modifier l'annonce OnAir : !anim on Merci d'etre a l'ecoute de la radio !
+			    Modifier l'annonce OffAir : !anim off Merci d'avoir animé la radio !
+
+%anim%			    Il est possible d'ajouter le pseudo de l'animateur dans l'annonce. Pour ce faire,
+			    ajouter %anim% dans l'annonce. Il peut se trouver n'importe où, et sera remplacé
+			    par le nom de l'animateur qui se met OnAir ou OffAir.
+
+			    Exemple : !annonce on Merci d'écouter %anim% sur <Radio>
+			    Si l'animateur 'DJ' tape !onair :
+			    Merci d'écouter DJ|OnAir sur <Radio>
+			    
+			    La même chose est faisable pour !annonce off <Annonce>
+			    
