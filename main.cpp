@@ -170,6 +170,7 @@ void			Mind::initMod(std::string &mod)
 
   m->setIrc(_irc);
   m->setConf(_conf);
+  m->setLogger(_logger);
 
   try {
     m->init();
