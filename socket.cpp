@@ -25,11 +25,20 @@ bool clientSocket::connect()
   struct protoent	*proto;
   struct sockaddr_in	sin;
   struct hostent	*hostinfo = NULL;
+  int			optval = 1;
   
   if (!(proto = getprotobyname("TCP")))
     return false;
   if ((_fd = socket(AF_INET, SOCK_STREAM, proto->p_proto)) < 0)
     return false;
+
+  setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+
+#ifdef __linux__
+  setsockopt(_fd, SOL_SOCKET, MSG_NOSIGNAL, &optval, sizeof(optval));
+#else
+  setsockopt(_fd, SOL_SOCKET, SO_NOSIGPIPE, &optval, sizeof(optval));
+#endif
 
   if (!(hostinfo = gethostbyname(_host.c_str())))
     return false;
