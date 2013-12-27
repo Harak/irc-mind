@@ -15,7 +15,7 @@ void Sample::init()
 {
   // this is called just after the module symbols are loaded
   _threaded = true; // creates a new thread for the run() method. Default: false
-  
+  _event = true;
 }
 
 void Sample::run()

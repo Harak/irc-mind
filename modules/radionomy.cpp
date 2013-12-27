@@ -63,7 +63,9 @@ void		Radionomy::getXml()
   curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, &my_read);
   curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, fd);
   curl_easy_setopt(curl_handle, CURLOPT_NOSIGNAL, 1);
-  curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, 20);
+  curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, 5);
+  curl_easy_setopt(curl_handle, CURLOPT_CONNECTTIMEOUT, 3);
+  curl_easy_setopt(curl_handle, CURLOPT_DNS_CACHE_TIMEOUT, 1800);
   curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "mind/0.1");
   curl_easy_perform(curl_handle);
 
