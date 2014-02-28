@@ -358,6 +358,12 @@ void Mind::execAdmin(ircEvent event, std::string &data)
 	      _irc->privmsg(target, std::string("Configuration reload failed.") + e.what());
 	    }
 	}
+       else if (cmd == ".die")
+	 {
+	   std::string msg = "Ciao!";
+	   _irc->quit(msg);
+	   exit(0);
+	 }
     }
 }
 
