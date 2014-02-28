@@ -17,6 +17,7 @@ public:
   static std::string	toLower(std::string);
   static void		trim(std::string &);
   static std::string	intToString(int);
+  static int		stringToInt(std::string);
   static void		stripColors(std::string &);
   static std::string	md5(std::string);
   static std::string	intToHexStr(int);

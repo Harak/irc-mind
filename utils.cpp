@@ -1,4 +1,5 @@
 #include <openssl/md5.h>
+#include <stdlib.h>
 #include <algorithm>
 #include <sstream>
 #include <string>
@@ -87,6 +88,11 @@ std::string Utils::intToString(int number)
 
   ss << number;
   return ss.str();
+}
+
+int Utils::stringToInt(std::string str)
+{
+  return atoi(str.c_str());
 }
 
 void Utils::stripColors(std::string &str)
