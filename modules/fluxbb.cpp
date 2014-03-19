@@ -84,7 +84,7 @@ void		FluxBB::checkNewTopic()
 { 
   std::vector<newpost *>::iterator it;
 
-  _topicurl = _baseUrl;
+  _topicurl = _baseUrl + "/irc.php";
   _topicurl += "?cmd=newtopic&key=";
   _topicurl += Utils::md5(Utils::md5(_key) + "newtopic");
   _topicurl += "&last=" + _lasttopic;
@@ -94,12 +94,9 @@ void		FluxBB::checkNewTopic()
   for (it = _topic.begin(); it != _topic.end(); ++it)
     {
       newpost *n = *it;
-      if (n->forum != "Equipe")
-	{
-	_irc->privmsg(_channel, "[" + n->forum + "] Nouveau sujet créé par " + n->poster + " : " + n->subject + " " + _baseUrl + "/viewtopic.php?id=" + n->id + "&action=new");
-	if (Utils::stringToInt(_lasttopic) < Utils::stringToInt(n->posted))
-	  _lasttopic = std::string(n->posted);
-	}
+      _irc->privmsg(_channel, "[" + n->forum + "] Nouveau sujet créé par " + n->poster + " : " + n->subject + " " + _baseUrl + "/viewtopic.php?id=" + n->id + "&action=new");
+      if (Utils::stringToInt(_lasttopic) < Utils::stringToInt(n->posted))
+	_lasttopic = std::string(n->posted);
       delete n;
     }
   _topic.clear();
@@ -109,7 +106,7 @@ void		FluxBB::checkNewPost()
 {
   std::vector<newpost *>::iterator it;
 
-  _posturl = _baseUrl;
+  _posturl = _baseUrl + "/irc.php";
   _posturl += "?cmd=newpost&key=";
   _posturl += Utils::md5(Utils::md5(_key) + "newpost");
   _posturl += "&last=" + _lastpost;
@@ -119,12 +116,9 @@ void		FluxBB::checkNewPost()
   for (it = _post.begin(); it != _post.end(); ++it)
     {
       newpost *n = *it;
-      if (n->forum != "Equipe")
-	{
-	  _irc->privmsg(_channel, "[" + n->forum + "] Nouveau message posté par " + n->poster + " : " + n->subject  + " " + _baseUrl + "/viewtopic.php?id=" + n->id + "&action=new");
-	  if (Utils::stringToInt(_lastpost) < Utils::stringToInt(n->posted))
-	    _lastpost = std::string(n->posted);
-	}
+      _irc->privmsg(_channel, "[" + n->forum + "] Nouveau message posté par " + n->poster + " : " + n->subject  + " " + _baseUrl + "/viewtopic.php?id=" + n->id + "&action=new");
+      if (Utils::stringToInt(_lastpost) < Utils::stringToInt(n->posted))
+	_lastpost = std::string(n->posted);
       delete n;
     }
   _post.clear();
