@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+start() {
+    ./bin/mind
+}
+
+stop() {
+    if [[ -f mind.pid && -r mind.pid ]]; then
+	kill -INT $(cat mind.pid)
+    else
+	echo "Could not find PID"
+	exit 1
+    fi
+}
+
+rehash() {
+    echo "Not implemented yet"
+    exit 1
+    if [[ -f mind.pid && -r mind.pid ]]; then
+	kill -HUP $(cat mind.pid)
+    else
+	echo "Could not find PID"
+	exit 1
+    fi
+}
+
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  rehash|reload)
+	rehash
+	;;
+  restart)
+        stop
+        start
+        ;;
+  *)
+        echo $"Usage: $0 {start|stop|restart|reload|rehash}"
+        exit 1
+esac
+
+exit 0

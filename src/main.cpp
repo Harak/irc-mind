@@ -1,8 +1,12 @@
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <iostream>
 #include <list>
 #include <string>
+#include <string.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <dlfcn.h>
 #include <db_cxx.h>
@@ -238,6 +242,8 @@ bool			Mind::unloadMod(std::string &mod)
   destruct	dtor;
   void		*handle;
 
+
+  (void)handle;
   if (_mod.find(mod) == _mod.end())
     {
       *_logger << std::string("MODULE ERROR - Unable to unload module '" + mod + "'.");
@@ -513,8 +519,39 @@ void			Mind::start()
 
 int			main()
 {
+  pid_t			pid;
+  pid_t			sid;
+  int			fd;
   Mind			bot;
+  char			*strpid;
+        
+  pid = fork();
+  if (pid < 0)
+    exit(EXIT_FAILURE);
 
+  if (pid > 0) 
+    exit(EXIT_SUCCESS);
+  
+  umask(0);
+                
+  sid = setsid();
+  if (sid < 0) 
+    exit(EXIT_FAILURE);
+        
+  close(STDIN_FILENO);
+  close(STDOUT_FILENO);
+  close(STDERR_FILENO);
+
+  if ((fd = open("./mind.pid", O_WRONLY|O_CREAT|O_TRUNC, 0644)) < 0)
+    exit(EXIT_FAILURE);
+
+  strpid = const_cast<char *>(Utils::intToString(getpid()).c_str());
+  
+  write(fd, strpid, strlen(strpid));
+  close(fd);
+         
   bot.start();
+  exit(EXIT_SUCCESS);
+
   return 0;
 }

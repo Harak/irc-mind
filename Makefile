@@ -1,15 +1,17 @@
-NAME 		= mind
+NAME 		= bin/mind
 
-COMMON		= irc.cpp	\
-		socket.cpp	\
-		user.cpp	\
-		conf.cpp	\
-		utils.cpp	\
-		logger.cpp
+SRCDIR		= src/
+
+COMMON		= $(SRCDIR)irc.cpp	\
+		$(SRCDIR)socket.cpp	\
+		$(SRCDIR)user.cpp	\
+		$(SRCDIR)conf.cpp	\
+		$(SRCDIR)utils.cpp	\
+		$(SRCDIR)logger.cpp
 
 
-SRC 		= main.cpp	\
-		activity.cpp	\
+SRC 		= $(SRCDIR)main.cpp	\
+		$(SRCDIR)activity.cpp	\
 		$(COMMON)
 
 
@@ -19,7 +21,7 @@ COMMON_OBJ	= $(COMMON:.cpp=.o)
 
 OBJ 		= $(SRC:.cpp=.o)
 
-CXXFLAGS 	+= -W -Wall $(XMLCFLAGS) -I. -I.. -I$(MODULEDIR) -O3 $(shell xml2-config --cflags) -fPIC -ggdb -rdynamic
+CXXFLAGS 	+= -W -Wall $(XMLCFLAGS) -I. -I.. -I$(SRCDIR) -I$(MODULEDIR) -O3 $(shell xml2-config --cflags) -fPIC -ggdb -rdynamic
 LDFLAGS		= -lpthread -lcurl -ldl $(shell xml2-config --libs) -ldb_cxx -lcrypto
 LIB_FLAGS	= -fPIC
 
