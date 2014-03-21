@@ -45,10 +45,16 @@ Logger &operator<<(Logger &logger, std::string str)
 
   struct tm *current;
   time_t now;
+  char curtime[50] = {0};
+  std::string tmp;
   
   time(&now);
   current = localtime(&now);
-  logger._output << "[" << current->tm_hour << ":" << current->tm_min << ":" << current->tm_sec << "] " << str << std::endl;
+
+  strftime(curtime, 50, "[ %m/%d/%Y - %T ] ", current);
+  tmp = std::string(curtime);
+
+  logger._output << tmp << str << std::endl;
   pthread_mutex_unlock(&_mutex);
 
   return logger;

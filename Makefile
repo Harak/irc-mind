@@ -34,6 +34,7 @@ MODULE_OBJ =	$(MODULE_SRC:.cpp=.so)
 all: 		$(NAME) modules
 
 $(NAME): 	$(OBJ)
+		@test -d bin || mkdir -p bin
 		$(CXX) -o $(NAME) $(CXXFLAGS) $(OBJ) $(LDFLAGS)
 
 .cpp.o:
