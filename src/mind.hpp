@@ -33,7 +33,6 @@ public:
   void initMod(std::string &);
   void initModules();
   void initAdmin(std::string &);
-
   void quit();
   void rehash();
 };

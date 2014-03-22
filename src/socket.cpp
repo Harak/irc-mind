@@ -64,6 +64,7 @@ std::string	clientSocket::recv()
     {
       if (::recv(_fd, &tmp, 1, 0) < 0)
 	throw new SocketException("Unable to read data");
+
       buf += tmp;
     } while (tmp != '\n');
   

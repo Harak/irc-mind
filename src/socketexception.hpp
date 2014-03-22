@@ -1,5 +1,5 @@
-#ifndef __SOCKET_EXCEPTION_HPP_
-#define __SOCKET_EXCEPTION_HPP_
+#ifndef __SOCKET_EXCEPTION_HPP__
+#define __SOCKET_EXCEPTION_HPP__
 
 #include "exception.hpp"
 

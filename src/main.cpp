@@ -422,11 +422,11 @@ void			Mind::run()
   int			i, raw;
   activityMonitor	monitor;
   struct epoll_event	*e = NULL;
-  moduleMap::const_iterator it;
   std::string		buf;
   ircEvent		event;
   User			user;
   std::string		tmp;
+  moduleMap::const_iterator it;
 
   _irc = new irc();
 
@@ -457,7 +457,7 @@ void			Mind::run()
   monitor.setEvents(EPOLLIN | EPOLLERR | EPOLLHUP);
   if (!monitor.init())
     {
-      std::cout << "Unable to init the activity monitor" << std::endl;
+      *_logger << "Unable to init the activity monitor";
       return;
     }
 
