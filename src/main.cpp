@@ -6,6 +6,7 @@
 #include <list>
 #include <string>
 #include <string.h>
+#include <signal.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <dlfcn.h>
@@ -24,6 +25,23 @@
 
 irc			*_irc;
 pthread_mutex_t		_mutex = PTHREAD_MUTEX_INITIALIZER;
+void			*sigobject;
+
+void			sighandler(int sig)
+{
+  Mind			*bot;
+
+  bot = static_cast<Mind *>(sigobject);
+
+  if (sig == SIGINT)
+    {
+      bot->quit();
+    }
+  else if (sig == SIGUSR1)
+    {
+      bot->rehash();
+    }
+}
 
 void			*init_modules(void *arg)
 {
@@ -52,7 +70,7 @@ void			*run(void *arg)
     }
   catch (Exception &e)
     {
-      std::cerr << e.what() << std::endl;
+      std::cerr << "ERROR - " << e.what() << std::endl;
       exit(1);
     }
 
@@ -72,9 +90,10 @@ void			*thread_handle(void *arg)
 Mind::Mind()
 {
   std::string	admin, modload;
-
+  
   try 
     {
+      _run = true;
       _conf.mapFile();
       if (!_conf.check())
 	{
@@ -94,7 +113,6 @@ Mind::Mind()
       std::cerr << "Error: " << e.what() << std::endl;
       exit(1);
     }
-  *_logger << "Modules loaded.";
 }
 
 void			Mind::initAdmin(std::string &admin)
@@ -133,7 +151,7 @@ void			Mind::initModules()
 	}
       catch (ModuleException &e)
 	{
-	  *_logger << std::string("Unable to load module '" + it->second->getName() + "': " + e.what());
+	  *_logger << "Unable to load module '" << it->second->getName() << "': " << e.what();
 	  _mod.erase(it);
 	  it--;
 	  continue;
@@ -166,7 +184,7 @@ void			Mind::initMod(std::string &mod)
 
   if (_mod.find(mod) == _mod.end())
     {
-      *_logger << "Warning: Module '" + mod + "' already loaded; ignoring...";
+      *_logger << "Warning: Module '" << mod << "' already loaded; ignoring...";
       return;
     }
 
@@ -206,12 +224,12 @@ bool			Mind::loadMod(std::string &mod)
 
   if (_mod.find(mod) != _mod.end())
     {
-      *_logger << std::string("MODULE ERROR - Module '" + mod + "' already loaded.");
+      *_logger << "MODULE ERROR - Module '" << mod << "' already loaded.";
       return false;
     }
   if (!(handle = dlopen(std::string("./modules/" + mod + ".so").c_str(), RTLD_NOW)))
     {
-      *_logger << std::string("MODULE ERROR - Unable to find './modules/" + mod + ".so' ") << dlerror();
+      *_logger << "MODULE ERROR - Unable to find './modules/" << mod << ".so' " << dlerror();
       return false;
     }
   if (!(sym = dlsym(handle, "create")))
@@ -231,7 +249,7 @@ bool			Mind::loadMod(std::string &mod)
   dtor = reinterpret_cast<destruct>(sym);
   load->setDtor(dtor); // unload
   _mod[mod] = load;
-  *_logger << std::string("MODULE - Module " + mod + " successfully loaded.");
+  *_logger << "MODULE - Module " << mod << " successfully loaded.";
   
   return true;
 }
@@ -246,7 +264,7 @@ bool			Mind::unloadMod(std::string &mod)
   (void)handle;
   if (_mod.find(mod) == _mod.end())
     {
-      *_logger << std::string("MODULE ERROR - Unable to unload module '" + mod + "'.");
+      *_logger << "MODULE ERROR - Unable to unload module '" << mod << "'.";
       return false;
     }
   
@@ -256,7 +274,7 @@ bool			Mind::unloadMod(std::string &mod)
   dtor(m);
   _mod.erase(mod);
   //dlclose(handle); FIXME?
-  *_logger << std::string("- MODULE - Module " + mod + " successfully unloaded.");
+  *_logger << "- MODULE - Module " << mod << " successfully unloaded.";
   return true;
 }
 
@@ -274,6 +292,7 @@ void			Mind::loadModules(std::string &modules)
 	break;
       loadMod(tmp);
     }
+  *_logger << "Modules loaded.";
 }
 
 void Mind::execAdmin(ircEvent event, std::string &data)
@@ -346,23 +365,7 @@ void Mind::execAdmin(ircEvent event, std::string &data)
 	}
       else if (cmd == ".rehash")
 	{
-	  try {
-	    Conf c;
-	    c.mapFile();
-	    if (!_conf.check())
-	      {
-		_irc->privmsg(target, "Configuration reload failed. Missing parameters");
-		return;
-	      }
-	    _conf = c;
-	    for (it = _mod.begin(); it != _mod.end(); ++it)
-	      it->second->setConf(_conf);
-	    _irc->privmsg(target, "Configuration successfully reloaded.");
-	  }
-	  catch (Exception &e)
-	    {
-	      _irc->privmsg(target, std::string("Configuration reload failed.") + e.what());
-	    }
+	  rehash();
 	}
        else if (cmd == ".die")
 	 {
@@ -371,6 +374,37 @@ void Mind::execAdmin(ircEvent event, std::string &data)
 	   exit(0);
 	 }
     }
+}
+
+void Mind::rehash()
+{
+  moduleMap::iterator	it;
+  Conf c;
+  
+  try 
+    {
+      *_logger << "Rehashing configuration...";
+      c.mapFile();
+      if (!_conf.check())
+	{
+	  *_logger << "Configuration reload failed. Missing parameters";
+	  return;
+	}
+      _conf = c;
+      for (it = _mod.begin(); it != _mod.end(); ++it)
+	it->second->setConf(_conf);
+      *_logger << "Configuration successfully reloaded.";
+    }
+  catch (Exception &e)
+    {
+      *_logger << "Configuration reload failed. " << e.what();
+    }
+}
+
+void Mind::quit()
+{
+  *_logger << "Shutting down...";
+  _run = false;
 }
 
 bool Mind::isAdmin(std::string nick)
@@ -426,7 +460,8 @@ void			Mind::run()
       std::cout << "Unable to init the activity monitor" << std::endl;
       return;
     }
-  while (42)
+
+  while (_run)
     if (monitor.checkActivity())
       {
 	if (!(e = monitor.getActivity()))
@@ -476,6 +511,7 @@ void			Mind::run()
 	  }
       }
   _irc->end();
+  *_logger << "Connection closed.";
   return;
 }
 
@@ -502,6 +538,10 @@ void			Mind::start()
 {
   pthread_t		th[2];
   int			ret;
+
+  *_logger << "----------------------------------------------------";
+  *_logger << "Starting new session";
+  *_logger << "----------------------------------------------------";
 
   if ((ret = pthread_create(&th[0], NULL, ::run, this)))
     return;
@@ -549,7 +589,11 @@ int			main()
   
   write(fd, strpid, strlen(strpid));
   close(fd);
-         
+
+  sigobject = &bot;
+  signal(SIGUSR1, sighandler);
+  signal(SIGINT, sighandler);
+
   bot.start();
   exit(EXIT_SUCCESS);
 

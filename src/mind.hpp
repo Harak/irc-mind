@@ -15,6 +15,7 @@ class Mind
   Conf	     _conf;
   stringlist _admin;
   Logger     *_logger;
+  bool	     _run;
 
   void loadModules(std::string &);
   bool loadMod(std::string &);
@@ -32,6 +33,9 @@ public:
   void initMod(std::string &);
   void initModules();
   void initAdmin(std::string &);
+
+  void quit();
+  void rehash();
 };
 
 #endif

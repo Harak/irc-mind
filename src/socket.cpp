@@ -7,6 +7,7 @@
 #include	<string.h>
 #include	<unistd.h>
 #include	"socket.hpp"
+#include	"socketexception.hpp"
 
 clientSocket::clientSocket(std::string const host, int const port)
 {
@@ -61,7 +62,8 @@ std::string	clientSocket::recv()
 
   do
     {
-      ::recv(_fd, &tmp, 1, 0);
+      if (::recv(_fd, &tmp, 1, 0) < 0)
+	throw new SocketException("Unable to read data");
       buf += tmp;
     } while (tmp != '\n');
   
@@ -70,12 +72,13 @@ std::string	clientSocket::recv()
 
 void		clientSocket::send(char const *buf)
 {
-  ::send(_fd, buf, strlen(buf), 0);
+  if (::send(_fd, buf, strlen(buf), 0) < 0)
+    throw new SocketException("Could not send data.");
 }
 
 void		clientSocket::send(std::string const buf)
 {
-  ::send(_fd, buf.c_str(), strlen(buf.c_str()), 0);
+  this->send(buf.c_str());
 }
 
 void		clientSocket::setPort(int const port)
