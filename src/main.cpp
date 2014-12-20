@@ -453,6 +453,12 @@ void			Mind::run()
   if (_irc->isOper())
     _irc->oper();
 
+  if (_conf.exists("autojoin"))
+    {
+      tmp = _conf.get("autojoin");
+      _irc->join(tmp);
+    }
+  
   monitor.setFd(_irc->getSock()->getFd());
   monitor.setEvents(EPOLLIN | EPOLLERR | EPOLLHUP);
   if (!monitor.init())
